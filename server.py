@@ -1,4 +1,4 @@
-#This is server.py
+# This is server.py
 from socket import *
 import json
 import os
