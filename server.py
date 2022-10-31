@@ -14,6 +14,7 @@ import base64
 import uuid
 import math
 import shutil
+import hashlib # bug4: name 'hashlib' is not defined
 
 MAX_PACKET_SIZE = 20480
 
@@ -647,7 +648,7 @@ def step_service(connection_socket, addr):
             continue
 
         if request_type == TYPE_FILE:
-            data_process(username, request_operation, json_data, bin_data, connection_socket)
+            file_process(username, request_operation, json_data, bin_data, connection_socket) # bug5: data_process
             continue
 
     connection_socket.close()
@@ -662,7 +663,7 @@ def tcp_listener(server_ip, server_port):
     :return: None
     """
     global logger
-    server_socket = socket(AF_INET, SOCK_STREAM) # bug 2: SOCK_DGRAM
+    server_socket = socket(AF_INET, SOCK_STREAM) # bug2: SOCK_DGRAM
     server_socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
     server_socket.bind((server_ip, int(server_port)))
     server_socket.listen(20)
@@ -673,7 +674,8 @@ def tcp_listener(server_ip, server_port):
             connection_socket, addr = server_socket.accept()
             logger.info(f'--> New connection from {addr[0]} on {addr[1]}')
             th = Thread(target=step_service, args=(connection_socket, addr)) # bug3: STEP_service
-            th.daemon = True
+            # th.daemon = True # 后台运行
+            th.start() 
 
         except Exception as ex:
             logger.error(f'{str(ex)}@{ex.__traceback__.tb_lineno}')
