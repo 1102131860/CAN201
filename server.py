@@ -18,11 +18,15 @@ import shutil
 MAX_PACKET_SIZE = 20480
 
 # Const Value
+# Operation
 OP_SAVE, OP_DELETE, OP_GET, OP_UPLOAD, OP_DOWNLOAD, OP_BYE, OP_LOGIN, OP_ERROR = 'SAVE', 'DELETE', 'GET', 'UPLOAD', 'DOWNLOAD', 'BYE', 'LOGIN', "ERROR"
+# type
 TYPE_FILE, TYPE_DATA, TYPE_AUTH, DIR_EARTH = 'FILE', 'DATA', 'AUTH', 'EARTH'
+# field
 FIELD_OPERATION, FIELD_DIRECTION, FIELD_TYPE, FIELD_USERNAME, FIELD_PASSWORD, FIELD_TOKEN = 'operation', 'direction', 'type', 'username', 'password', 'token'
 FIELD_KEY, FIELD_SIZE, FIELD_TOTAL_BLOCK, FIELD_MD5, FIELD_BLOCK_SIZE = 'key', 'size', 'total_block', 'md5', 'block_size'
 FIELD_STATUS, FIELD_STATUS_MSG, FIELD_BLOCK_INDEX = 'status', 'status_msg', 'block_index'
+# direction
 DIR_REQUEST, DIR_RESPONSE = 'REQUEST', 'RESPONSE'
 
 logger = logging.getLogger('')
@@ -658,7 +662,7 @@ def tcp_listener(server_ip, server_port):
     :return: None
     """
     global logger
-    server_socket = socket(AF_INET, SOCK_DGRAM)
+    server_socket = socket(AF_INET, SOCK_STREAM) # bug 2: SOCK_DGRAM
     server_socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
     server_socket.bind((server_ip, int(server_port)))
     server_socket.listen(20)
@@ -668,7 +672,7 @@ def tcp_listener(server_ip, server_port):
         try:
             connection_socket, addr = server_socket.accept()
             logger.info(f'--> New connection from {addr[0]} on {addr[1]}')
-            th = Thread(target=STEP_service, args=(connection_socket, addr))
+            th = Thread(target=step_service, args=(connection_socket, addr)) # bug3: STEP_service
             th.daemon = True
 
         except Exception as ex:
@@ -689,4 +693,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main
+    main() # bug1: main
