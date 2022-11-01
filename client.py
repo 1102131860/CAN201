@@ -40,7 +40,7 @@ def get_uploading_plan(clientSocket, token, size_file):
     Get file uploading plan and get the key
     :param clientSocket:
     :param token:
-    :size_file:
+    :param size_file:
     :return: key, file_size, block_size, total_block, and so on
     '''
     # send uploading application
@@ -61,10 +61,10 @@ def get_uploading_plan(clientSocket, token, size_file):
 def uploading_file(clientSocket, token, key_block, bin_data):
     '''
     Keeping sending block_size_binary_file_data untill get file_MD5
-    :clientSocket:
-    :token:
-    :key_block: key, file_size, block_size, total_block and so on
-    :bin_data: the binary data of the uploading files
+    :param clientSocket:
+    :param token:
+    :param key_block: key, file_size, block_size, total_block and so on
+    :param bin_data: the binary data of the uploading files
     :return: file_MD5
     '''
     block_index = 0
