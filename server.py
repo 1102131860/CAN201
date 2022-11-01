@@ -675,7 +675,7 @@ def tcp_listener(server_ip, server_port):
             logger.info(f'--> New connection from {addr[0]} on {addr[1]}')
             th = Thread(target=step_service, args=(connection_socket, addr)) # bug3: STEP_service
             # th.daemon = True # 后台运行
-            th.start() 
+            th.start()
 
         except Exception as ex:
             logger.error(f'{str(ex)}@{ex.__traceback__.tb_lineno}')
