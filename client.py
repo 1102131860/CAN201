@@ -87,9 +87,11 @@ def uploading_file(clientSocket, token, key_block, bin_data):
         end_index = start_index + block_size if block_index != total_block - 1 else size_file
         block_bin_data = bin_data[start_index:end_index]
 
+        # send joson_data and the block binary data of file
         packet = make_packet(josn_data, block_bin_data)
         clientSocket.send(packet)
 
+        # receive packet from server and update block_index, key, check file_MD5 exists in packets
         received_json_data, received_bin_data = get_tcp_packet(clientSocket)
         block_index = received_json_data[FIELD_BLOCK_INDEX] + 1
         key = received_json_data[FIELD_KEY]
@@ -116,6 +118,7 @@ def main():
     key_block = get_uploading_plan(clientSocket,token,size_file) # dict
     print(f"Key and block are {key_block}")
 
+    # File uploading block by block and get file_MD5
     file_MD5 = uploading_file(clientSocket, token, key_block, bin_data)
     print(f"File_MD5 is {file_MD5}, {type(file_MD5)}")
 
