@@ -667,6 +667,7 @@ def tcp_listener(server_ip, server_port):
     server_socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
     server_socket.bind((server_ip, int(server_port)))
     server_socket.listen(20)
+    print('server is ready')
     logger.info(
         f'Start the TCP service, listing {server_port} on IP {"All available" if server_ip == "" else server_ip}')
     while True:
