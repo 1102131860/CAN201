@@ -2,6 +2,8 @@
 from server import *
 import hashlib
 
+period = f""
+
 def _argparse():
     parse = argparse.ArgumentParser()
     parse.add_argument("--ip", default='', action='store', required=False, dest="ip",
@@ -12,11 +14,11 @@ def _argparse():
 
 
 def get_authorization(clientSocket):
-    '''
+    """
     Send auth information and receive a TCP "packet" containning token
     :param clientSocket: the TCP clientSocket to send packet
     :return: Token
-    '''
+    """
     USERNAME = "2033922"
     PASSWORD = hashlib.md5(USERNAME.encode()).hexdigest()
 
@@ -36,13 +38,13 @@ def get_authorization(clientSocket):
     return received_json_data[FIELD_TOKEN] if FIELD_TOKEN in received_json_data else received_json_data
 
 def get_uploading_plan(clientSocket, token, size_file):
-    '''
+    """
     Get file uploading plan and get the key
     :param clientSocket:
     :param token:
     :param size_file:
     :return: key, file_size, block_size, total_block, and so on
-    '''
+    """
     # send uploading application
     josn_data = {
         FIELD_DIRECTION: DIR_REQUEST,
@@ -59,14 +61,16 @@ def get_uploading_plan(clientSocket, token, size_file):
     return received_json_data
 
 def uploading_file(clientSocket, token, key_block, bin_data):
-    '''
+    """
     Keeping sending block_size_binary_file_data untill get file_MD5
     :param clientSocket:
     :param token:
     :param key_block: key, file_size, block_size, total_block and so on
     :param bin_data: the binary data of the uploading files
     :return: file_MD5
-    '''
+    """
+    global period
+    starttime = time.time()
     block_index = 0
     key = key_block[FIELD_KEY]
     size_file = key_block[FIELD_SIZE]
@@ -96,6 +100,8 @@ def uploading_file(clientSocket, token, key_block, bin_data):
         block_index = received_json_data[FIELD_BLOCK_INDEX] + 1
         key = received_json_data[FIELD_KEY]
         if FIELD_MD5 in received_json_data:
+            endtime = time.time()
+            period = round(endtime - starttime, 4)
             return received_json_data[FIELD_MD5]
 
 def main():
@@ -120,7 +126,7 @@ def main():
 
     # File uploading block by block and get file_MD5
     file_MD5 = uploading_file(clientSocket, token, key_block, bin_data)
-    print(f"File_MD5 is {file_MD5}, {type(file_MD5)}")
+    print(f"File_MD5 is {file_MD5} \nPeriod for sending this file is {period} secs")
 
 if __name__ == "__main__":
     main()
