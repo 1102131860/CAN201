@@ -23,19 +23,28 @@ def get_authorization(clientSocket):
     PASSWORD = hashlib.md5(USERNAME.encode()).hexdigest()
 
     # send auth information
-    josn_data = {
+    json_data = {
         FIELD_DIRECTION: DIR_REQUEST,
         FIELD_OPERATION: OP_LOGIN,
         FIELD_TYPE: TYPE_AUTH,
         FIELD_USERNAME: USERNAME,
         FIELD_PASSWORD: PASSWORD
     }
-    packet = make_packet(josn_data)
+    packet = make_packet(json_data)
     clientSocket.send(packet)
 
-    # receive packet containning token
+    # receive packet from server side, judge the token exit and right or not
     received_json_data, received_bin_data = get_tcp_packet(clientSocket)
-    return received_json_data[FIELD_TOKEN] if FIELD_TOKEN in received_json_data else received_json_data
+    if FIELD_TOKEN not in received_json_data:
+        print("Fail to get FILED_TOKEN!")
+        return received_json_data
+    user_str = f'{json_data[FIELD_USERNAME].replace(".", "_")}.' \
+               f'{get_time_based_filename("login")}'
+    md5_auth_str = hashlib.md5(f'{user_str}kjh20)*(1'.encode()).hexdigest()
+    if base64.b64encode(f'{user_str}.{md5_auth_str}'.encode()).decode() != received_json_data[FIELD_TOKEN]:
+        print("Token is incorrect!")
+        return received_json_data
+    return received_json_data[FIELD_TOKEN]
 
 def get_uploading_plan(clientSocket, token, size_file):
     """
@@ -46,18 +55,21 @@ def get_uploading_plan(clientSocket, token, size_file):
     :return: key, file_size, block_size, total_block, and so on
     """
     # send uploading application
-    josn_data = {
+    json_data = {
         FIELD_DIRECTION: DIR_REQUEST,
         FIELD_OPERATION: OP_SAVE,
         FIELD_TYPE: TYPE_FILE,
         FIELD_TOKEN: token,
         FIELD_SIZE: size_file
     }
-    packet = make_packet(josn_data)
+    packet = make_packet(json_data)
     clientSocket.send(packet)
 
-    # receive packet containning key
+    # receive packet from server side and jude the key exit or not
     received_json_data, received_bin_data = get_tcp_packet(clientSocket)
+    if FIELD_KEY not in received_json_data:
+        print("Fail to get FILED_KEY!")
+        return False
     return received_json_data
 
 def uploading_file(clientSocket, token, key_block, bin_data):
@@ -78,7 +90,7 @@ def uploading_file(clientSocket, token, key_block, bin_data):
     total_block = key_block[FIELD_TOTAL_BLOCK]
 
     while True:
-        josn_data = {
+        json_data = {
             FIELD_DIRECTION: DIR_REQUEST,
             FIELD_OPERATION: OP_UPLOAD,
             FIELD_TYPE: TYPE_FILE,
@@ -92,7 +104,7 @@ def uploading_file(clientSocket, token, key_block, bin_data):
         block_bin_data = bin_data[start_index:end_index]
 
         # send joson_data and the block binary data of file
-        packet = make_packet(josn_data, block_bin_data)
+        packet = make_packet(json_data, block_bin_data)
         clientSocket.send(packet)
 
         # receive packet from server and update block_index, key, check file_MD5 exists in packets
@@ -112,9 +124,11 @@ def main():
     clientSocket = socket(AF_INET, SOCK_STREAM)
     clientSocket.connect(server_IP_port)
 
-    # Firstly get token from server, token: bytes
-    token = get_authorization(clientSocket)
-    print(f"Token is {token}")
+    # Firstly get token from server
+    token = get_authorization(clientSocket) # string
+    if isinstance(token,dict):
+        return
+    print(f"Right Token is {token}")
 
     fhand = open('picture.jpg','rb')
     bin_data = fhand.read()
@@ -122,7 +136,9 @@ def main():
 
     # File uploading plan and get the key along with the requirements for files
     key_block = get_uploading_plan(clientSocket,token,size_file) # dict
-    print(f"Key and block are {key_block}")
+    if key_block is False:
+        return
+    print(key_block)
 
     # File uploading block by block and get file_MD5
     file_MD5 = uploading_file(clientSocket, token, key_block, bin_data)
