@@ -3,13 +3,18 @@ from server import *
 import hashlib
 
 period = f""
+USERNAME = ""
 
 def _argparse():
     parse = argparse.ArgumentParser()
-    parse.add_argument("--ip", default='', action='store', required=False, dest="ip",
-                       help="The IP address bind to the server. Default bind all IP.")
+    parse.add_argument("--ip", default='127.0.0.1', action='store', required=False, dest="ip",
+                       help="The IP address bind to the server. Default bind to localhost.")
     parse.add_argument("--port", default='1379', action='store', required=False, dest="port",
                        help="The port that server listen on. Default is 1379.")
+    parse.add_argument("--id", default='2033922', action='store', required=False, dest="id",
+                       help="The id is the USERNAME in get_authorization. Default is 2033922.")
+    parse.add_argument("--file", default='picture.jpg', action='store', required=False, dest="file",
+                       help="The file that will be sent to server. Default is the picture.jpg")
     return parse.parse_args()
 
 
@@ -19,7 +24,7 @@ def get_authorization(clientSocket):
     :param clientSocket: the TCP clientSocket to send packet
     :return: Token
     """
-    USERNAME = "2033922"
+    global USERNAME
     PASSWORD = hashlib.md5(USERNAME.encode()).hexdigest()
 
     # send auth information
@@ -117,9 +122,12 @@ def uploading_file(clientSocket, token, key_block, bin_data):
             return received_json_data[FIELD_MD5]
 
 def main():
+    global USERNAME
     parser = _argparse()
     server_ip = parser.ip
     server_port = parser.port
+    USERNAME = parser.id
+    file = parser.file
     server_IP_port = (server_ip, int(server_port))
     clientSocket = socket(AF_INET, SOCK_STREAM)
     clientSocket.connect(server_IP_port)
@@ -130,7 +138,7 @@ def main():
         return
     print(f"Right Token is {token}")
 
-    fhand = open('picture.jpg','rb')
+    fhand = open(file,'rb')
     bin_data = fhand.read()
     size_file = len(bin_data)
 
