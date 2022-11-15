@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2022-11-15T11:17:23.506Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36" etag="n672L32kgWr4itzIwF-W" version="20.5.3" type="github" pages="5">
+<mxfile host="app.diagrams.net" modified="2022-11-15T11:18:12.587Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36" etag="W31jfi6FSE1LjU-Va5L2" version="20.5.3" type="github" pages="5">
   <diagram name="client server architecture" id="822b0af5-4adb-64df-f703-e8dfc1f81529">
     <mxGraphModel dx="1730" dy="48" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" background="none" math="0" shadow="0">
       <root>
@@ -891,7 +891,7 @@
         <mxCell id="hICeC7CZ31S6OY6i22R_-24" value="clientSocket" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fontSize=18;" parent="1" vertex="1">
           <mxGeometry x="-142.5" y="1150" width="163" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="YTwkZ6mKyR8aMSCUHEar-2" value="blocked_bin_data = binary_data[start_index:end_index}" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fontSize=18;" parent="1" vertex="1">
+        <mxCell id="YTwkZ6mKyR8aMSCUHEar-2" value="blocked_bin_data = binary_data[start_index:end_index]" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fontSize=18;" parent="1" vertex="1">
           <mxGeometry x="450" y="950" width="330" height="80" as="geometry" />
         </mxCell>
         <mxCell id="YTwkZ6mKyR8aMSCUHEar-4" value="&amp;nbsp;= file_size *(block_index + 1)" style="rounded=0;whiteSpace=wrap;html=1;fontSize=18;" parent="1" vertex="1">
