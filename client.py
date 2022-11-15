@@ -20,7 +20,7 @@ def get_authorization(clientSocket, username):
     :param clientSocket: the TCP clientSocket to send packet
     :return: Token
     """
-    PASSWORD = hashlib.md5(username.encode()).hexdigest()
+    password = hashlib.md5(username.encode()).hexdigest()
 
     # send auth information
     json_data = {
@@ -28,7 +28,7 @@ def get_authorization(clientSocket, username):
         FIELD_OPERATION: OP_LOGIN,
         FIELD_TYPE: TYPE_AUTH,
         FIELD_USERNAME: username,
-        FIELD_PASSWORD: PASSWORD
+        FIELD_PASSWORD: password
     }
     packet = make_packet(json_data)
     clientSocket.send(packet)
@@ -112,13 +112,13 @@ def uploading_file(clientSocket, token, key_block, bin_data):
         # receive packet from server and update block_index, key, check file_MD5 exists in packets
         received_json_data, received_bin_data = get_tcp_packet(clientSocket)
         print(received_json_data)
-        block_index = received_json_data[FIELD_BLOCK_INDEX] + 1
-        key = received_json_data[FIELD_KEY]
         if FIELD_MD5 in received_json_data:
             endtime = time.time()
             consumed_time = round(endtime - starttime, 4)
             print(f"Consumed_time for sending this file is {consumed_time} secs")
             return
+        block_index = received_json_data[FIELD_BLOCK_INDEX] + 1
+        key = received_json_data[FIELD_KEY]
 
 def main():
     parser = _argparse()
