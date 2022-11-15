@@ -14,7 +14,6 @@ def _argparse():
                        help="The file that will be sent to server. Default is the picture.jpg")
     return parse.parse_args()
 
-
 def get_authorization(clientSocket, username):
     """
     Send auth information and receive a TCP "packet" containning token
