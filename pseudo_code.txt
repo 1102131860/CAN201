@@ -1,0 +1,53 @@
+This pseudo codes focuses on how to acquire authorization from server and upload file to server.
+
+function getAuthorization(Argument username){
+  packet direction, operation, type, username, password
+  send the packet to server
+  <server send response packet>
+  abstract message from the response packet
+  if token doesn't exist in the message
+    then print prompt "Fail to get token"
+         return False
+  abstract token from the message
+  if token isn't correct
+    then print prompt "The token is incorrect"
+         return False
+  print prompt "The checked token is " and token
+  return token
+}
+
+function fetchUploadingPlan(Argument token, Argument sizeFile){
+  packet direction, opeartion, type, token, sizeFile
+  send the packet to server
+  <server send response packet>
+  abstract message from the response packet
+  print message
+  if key doesn't exist in the message
+    then print prompt "Fail to get key"
+         return False
+  return message
+}
+
+function fileUploading(Argument token, Arguement message, Argument binaryData){
+  startTime <- this moment time
+  blockIndex <- 0
+  abstract key, sizeFile, blockSize, totalBlock from message
+  do{
+    startIndex <- blockSize * blockIndex
+    endIndex <- startIndex + blockSize
+    if blockIndex == totalBlock
+      then endIndex <- sizeFile
+    blockBinaryData <- segment in the binaryData from startIndex to endIndex
+    packet direction, operation, type, token, key, blockIndex, blockBinaryData
+    send the packet to server
+    <server send response packet>
+    abstract message from the response packet
+    print message
+    if MD5 exists in the message
+      then stopTime <- this moment time
+           consumedTime <- startTime - stopTime
+           print consumedTime
+           return
+    blockIndex <- blockIndex + 1
+  }
+}
