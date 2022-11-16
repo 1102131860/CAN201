@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2022-11-16T16:08:21.916Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36" etag="ifo_Ayn4yzvEHUuFq3Fp" version="20.5.3" type="github" pages="5">
+<mxfile host="app.diagrams.net" modified="2022-11-16T16:09:17.152Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36" etag="cCfSfwktGOkSXETOG7RD" version="20.5.3" type="github" pages="5">
   <diagram name="client server architecture" id="822b0af5-4adb-64df-f703-e8dfc1f81529">
     <mxGraphModel dx="1038" dy="-367" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" background="none" math="0" shadow="0">
       <root>
@@ -916,10 +916,10 @@
           <mxGeometry x="1060" y="1371" width="200" height="70" as="geometry" />
         </mxCell>
         <mxCell id="bw4YxewPPEmo_WJYO3zm-1" value="contains FiELD_MD5?" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.decision;whiteSpace=wrap;fontSize=26;" parent="1" vertex="1">
-          <mxGeometry x="1040" y="970" width="230" height="110" as="geometry" />
+          <mxGeometry x="1041" y="970" width="233" height="110" as="geometry" />
         </mxCell>
         <mxCell id="_S_a3P_a-IYw92rtgHaU-1" value="received_json_data" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fontSize=26;" parent="1" vertex="1">
-          <mxGeometry x="1018" y="1200" width="280" height="70" as="geometry" />
+          <mxGeometry x="1019" y="1200" width="280" height="70" as="geometry" />
         </mxCell>
         <mxCell id="_S_a3P_a-IYw92rtgHaU-12" value="" style="endArrow=classic;html=1;rounded=0;fontSize=26;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="hICeC7CZ31S6OY6i22R_-13" target="hICeC7CZ31S6OY6i22R_-3" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
@@ -1019,7 +1019,7 @@
           <mxGeometry x="700" y="490" width="220" height="70" as="geometry" />
         </mxCell>
         <mxCell id="_S_a3P_a-IYw92rtgHaU-32" value="block_index += 1" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fontSize=26;" parent="1" vertex="1">
-          <mxGeometry x="923" y="580" width="238" height="80" as="geometry" />
+          <mxGeometry x="921" y="580" width="238" height="80" as="geometry" />
         </mxCell>
         <mxCell id="_S_a3P_a-IYw92rtgHaU-33" value="" style="endArrow=classic;html=1;rounded=0;fontSize=26;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="YUrcyv7SKahH10bCkB1U-1" target="YUrcyv7SKahH10bCkB1U-2" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
@@ -1111,10 +1111,10 @@
           <mxGeometry x="1218" y="388" width="100" height="40" as="geometry" />
         </mxCell>
         <mxCell id="ueX8oMjl3Z-ETcb1RuK0-8" value="stop_time = time.time()" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fontSize=26;" parent="1" vertex="1">
-          <mxGeometry x="1180" y="830" width="180" height="76" as="geometry" />
+          <mxGeometry x="1182" y="830" width="180" height="76" as="geometry" />
         </mxCell>
         <mxCell id="ueX8oMjl3Z-ETcb1RuK0-9" value="comsumed_time = stop_time - start_time" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fontSize=26;" parent="1" vertex="1">
-          <mxGeometry x="1145" y="650" width="250" height="110" as="geometry" />
+          <mxGeometry x="1146" y="650" width="250" height="110" as="geometry" />
         </mxCell>
         <mxCell id="ueX8oMjl3Z-ETcb1RuK0-10" value="display" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.display;whiteSpace=wrap;fontSize=26;" parent="1" vertex="1">
           <mxGeometry x="1430" y="675" width="110" height="60" as="geometry" />
