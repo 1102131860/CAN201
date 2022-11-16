@@ -3,51 +3,33 @@ This pseudo codes focuses on how to acquire authorization from server and upload
 function getAuthorization(Argument username){
   packet direction, operation, type, username, password
   send the packet to server
-  <server send response packet>
   abstract message from the response packet
-  if token doesn't exist in the message
-    then print prompt "Fail to get token"
-         return False
+  if token doesn't exist in the message then return
   abstract token from the message
-  if token isn't correct
-    then print prompt "The token is incorrect"
-         return False
-  print prompt "The checked token is " and token
+  if token isn't correct then return
   return token
 }
 
 function fetchUploadingPlan(Argument token, Argument sizeFile){
-  packet direction, opeartion, type, token, sizeFile
+  packet direction, operation, type, token, sizeFile
   send the packet to server
-  <server send response packet>
   abstract message from the response packet
-  print message
-  if key doesn't exist in the message
-    then print prompt "Fail to get key"
-         return False
+  if key doesn't exist in the message then return
   return message
 }
 
-function fileUploading(Argument token, Arguement message, Argument binaryData){
-  startTime <- this moment time
+function fileUploading(Argument token, Argument message, Argument binaryData){
   blockIndex <- 0
   abstract key, sizeFile, blockSize, totalBlock from message
   do{
     startIndex <- blockSize * blockIndex
     endIndex <- startIndex + blockSize
-    if blockIndex == totalBlock
-      then endIndex <- sizeFile
+    if blockIndex == totalBlock then endIndex <- sizeFile
     blockBinaryData <- segment in the binaryData from startIndex to endIndex
     packet direction, operation, type, token, key, blockIndex, blockBinaryData
     send the packet to server
-    <server send response packet>
     abstract message from the response packet
-    print message
-    if MD5 exists in the message
-      then stopTime <- this moment time
-           consumedTime <- startTime - stopTime
-           print consumedTime
-           return
+    if MD5 exists in the message then return
     blockIndex <- blockIndex + 1
   }
 }
