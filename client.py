@@ -4,14 +4,14 @@ import hashlib
 
 def _argparse():
     parse = argparse.ArgumentParser()
-    parse.add_argument("-server_ip", default='127.0.0.1', action='store', required=False, dest="ip",
+    parse.add_argument("--server_ip", default='127.0.0.1', action='store', required=False, dest="server_ip",
                        help="The IP address bind to the server. Default bind to localhost.")
-    parse.add_argument("-port", default='1379', action='store', required=False, dest="port",
+    parse.add_argument("--port", default='1379', action='store', required=False, dest="port",
                        help="The port that server listen on. Default is 1379.")
-    parse.add_argument("-id", default='2033922', action='store', required=False, dest="id",
-                       help="The id is the USERNAME in get_authorization. Default is 2033922.")
-    parse.add_argument("-file", default='picture.jpg', action='store', required=False, dest="file",
-                       help="The file that will be sent to server. Default is the picture.jpg")
+    parse.add_argument("--id", default='1202437', action='store', required=False, dest="id",
+                       help="Your id. Default is 1202437.")
+    parse.add_argument("--f", default='', action='store', required=False, dest="file",
+                       help="File path. Default is empty(No file will be upload)")
     return parse.parse_args()
 
 def get_authorization(clientSocket, username):
@@ -122,7 +122,7 @@ def uploading_file(clientSocket, token, key_block, bin_data):
 
 def main():
     parser = _argparse()
-    server_ip = parser.ip
+    server_ip = parser.server_ip
     server_port = parser.port
     username = parser.id
     file = parser.file
