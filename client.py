@@ -4,13 +4,13 @@ import hashlib
 
 def _argparse():
     parse = argparse.ArgumentParser()
-    parse.add_argument("--ip", default='127.0.0.1', action='store', required=False, dest="ip",
+    parse.add_argument("-server_ip", default='127.0.0.1', action='store', required=False, dest="ip",
                        help="The IP address bind to the server. Default bind to localhost.")
-    parse.add_argument("--port", default='1379', action='store', required=False, dest="port",
+    parse.add_argument("-port", default='1379', action='store', required=False, dest="port",
                        help="The port that server listen on. Default is 1379.")
-    parse.add_argument("--id", default='2033922', action='store', required=False, dest="id",
+    parse.add_argument("-id", default='2033922', action='store', required=False, dest="id",
                        help="The id is the USERNAME in get_authorization. Default is 2033922.")
-    parse.add_argument("--file", default='picture.jpg', action='store', required=False, dest="file",
+    parse.add_argument("-file", default='picture.jpg', action='store', required=False, dest="file",
                        help="The file that will be sent to server. Default is the picture.jpg")
     return parse.parse_args()
 
