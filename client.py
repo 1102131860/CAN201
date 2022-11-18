@@ -1,6 +1,5 @@
 # This is client.py
 from server import *
-import hashlib
 
 def _argparse():
     parse = argparse.ArgumentParser()
@@ -18,7 +17,8 @@ def get_authorization(clientSocket, username):
     """
     Send auth information and receive a TCP "packet" containning token
     :param clientSocket: the TCP clientSocket to send packet
-    :return: Token
+    :username: id of user
+    :return: Token or False
     """
     password = hashlib.md5(username.encode()).hexdigest()
 
@@ -48,13 +48,14 @@ def get_authorization(clientSocket, username):
     print(f"The checked Token is {checked_token}")
     return checked_token
 
-def get_uploading_plan(clientSocket, token, size_file):
+def get_uploading_plan(clientSocket, token, file, size_file):
     """
     Get file uploading plan and get the key
     :param clientSocket:
     :param token:
-    :param size_file:
-    :return: key, file_size, block_size, total_block, and so on
+    :param file: file path
+    :param size_file: size of file
+    :return: packet containing key, block_size, total_block or False
     """
     # send uploading application
     json_data = {
@@ -62,6 +63,7 @@ def get_uploading_plan(clientSocket, token, size_file):
         FIELD_OPERATION: OP_SAVE,
         FIELD_TYPE: TYPE_FILE,
         FIELD_TOKEN: token,
+        FIELD_KEY: file,
         FIELD_SIZE: size_file
     }
     packet = make_packet(json_data)
@@ -70,8 +72,8 @@ def get_uploading_plan(clientSocket, token, size_file):
     # receive packet from server side and jude the key exit or not
     received_json_data, received_bin_data = get_tcp_packet(clientSocket)
     print(received_json_data)
-    if FIELD_KEY not in received_json_data:
-        print("Fail to get FILED_KEY!")
+    if FIELD_TOTAL_BLOCK not in received_json_data:
+        print(f"Please don't send file with same path: {file}")
         return False
     return received_json_data
 
@@ -80,7 +82,7 @@ def uploading_file(clientSocket, token, key_block, bin_data):
     Keeping sending block_size_binary_file_data untill get file_MD5
     :param clientSocket:
     :param token:
-    :param key_block: key, file_size, block_size, total_block and so on
+    :param key_block: packet containing key, block_size, total_block
     :param bin_data: the binary data of the uploading files
     :return: file_MD5
     """
@@ -140,7 +142,7 @@ def main():
     size_file = len(bin_data)
 
     # File uploading plan and get the key along with the requirements for files
-    key_block = get_uploading_plan(clientSocket,token,size_file) # dict
+    key_block = get_uploading_plan(clientSocket, token, file, size_file) # dict
     if key_block is False:
         return
 
