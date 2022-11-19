@@ -2,7 +2,7 @@
 from server import *
 
 # global variables
-ip, port, id, file, total_thread = "127.0.0.1", 1379, "1202437", "", 1
+ip, port, id, file, total_thread = "127.0.0.1", 1379, "1202437", "", 8
 start_time, stop_time = 0, 0
 
 def _argparse():
@@ -15,7 +15,7 @@ def _argparse():
                        help="Your id. Default is 1202437.")
     parse.add_argument("--f", default='', action='store', required=False, dest="file",
                        help="File path. Default is empty(No file will be upload)")
-    parse.add_argument("--thread", default='1', action='store', required=False, dest="total_thread",
+    parse.add_argument("--thread", default='8', action='store', required=False, dest="total_thread",
                        help="The total number of thread. Default is 1")
     return parse.parse_args()
 
@@ -59,13 +59,9 @@ def uploading_file(clientSocket, token):
     :param token:
     """
     global file, total_thread, start_time
-    bin_data = b""
-    for i in range(128):
-        fhand = open(file, "rb")
-        bin_data += fhand.read()
-        fhand.close()
-    # fhand = open(file, "rb")
-    # bin_data = fhand.read()
+    fhand = open(file, "rb")
+    fhand = open(file, "rb")
+    bin_data = fhand.read()
     size_file = len(bin_data)
     json_data = {
         FIELD_DIRECTION: DIR_REQUEST,
