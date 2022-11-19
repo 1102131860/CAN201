@@ -4,6 +4,7 @@ log/
 data/
 file/
 tmp/
+.idea/
 picture.jpg
 picture1.jpg
 picture2.jpg

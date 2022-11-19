@@ -1,7 +1,7 @@
 # This is client.py
 from server import *
 
-total_thread = 4
+total_thread = 1
 start_time, stop_time = f"", f""
 
 def _argparse():
@@ -56,7 +56,7 @@ def uploading_file(clientSocket, token, parser):
     :param token:
     :param parser:
     """
-    global total_thread
+    global total_thread, start_time, stop_time
     file = parser.file
     fhand = open(file, "rb")
     bin_data = fhand.read()
@@ -97,8 +97,7 @@ def uploading_file(clientSocket, token, parser):
         thread = Thread(target=uploading, args=(sub_socket, token, key, blocks, i))
         # thread.daemon = True
         thread.start()
-        # thread.join()
-
+        thread.join()
 
 def uploading(sub_socket, token, key, blocks, index):
     """
@@ -109,7 +108,7 @@ def uploading(sub_socket, token, key, blocks, index):
     :param blocks:
     :param index:
     """
-    global total_thread
+    global total_thread, start_time, stop_time
     for block_index in range(index, len(blocks), total_thread):
         json_data = {
             FIELD_DIRECTION: DIR_REQUEST,
@@ -119,7 +118,7 @@ def uploading(sub_socket, token, key, blocks, index):
             FIELD_KEY: key,
             FIELD_BLOCK_INDEX: block_index
         }
-        packet = make_packet(json_data,blocks[block_index])
+        packet = make_packet(json_data, blocks[block_index])
         sub_socket.send(packet)
 
         received_json_data, received_bin_data = get_tcp_packet(sub_socket)
