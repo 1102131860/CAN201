@@ -1,6 +1,9 @@
 # This is client.py
 from server import *
 
+total_thread = 4
+start_time, stop_time = f"", f""
+
 def _argparse():
     parse = argparse.ArgumentParser()
     parse.add_argument("--server_ip", default='127.0.0.1', action='store', required=False, dest="server_ip",
@@ -13,16 +16,15 @@ def _argparse():
                        help="File path. Default is empty(No file will be upload)")
     return parse.parse_args()
 
-def get_authorization(clientSocket, username):
+def get_authorization(clientSocket, parser):
     """
     Send auth information and receive a TCP "packet" containning token
     :param clientSocket: the TCP clientSocket to send packet
-    :username: id of user
+    :parser:
     :return: Token or False
     """
+    username = parser.id
     password = hashlib.md5(username.encode()).hexdigest()
-
-    # send auth information
     json_data = {
         FIELD_DIRECTION: DIR_REQUEST,
         FIELD_OPERATION: OP_LOGIN,
@@ -33,7 +35,6 @@ def get_authorization(clientSocket, username):
     packet = make_packet(json_data)
     clientSocket.send(packet)
 
-    # receive packet from server side, then judge the token exit and right or not
     received_json_data, received_bin_data = get_tcp_packet(clientSocket)
     if FIELD_TOKEN not in received_json_data:
         print("Fail to get FILED_TOKEN!")
@@ -44,20 +45,22 @@ def get_authorization(clientSocket, username):
     if base64.b64encode(f'{user_str}.{md5_auth_str}'.encode()).decode() != received_json_data[FIELD_TOKEN]:
         print("Token is incorrect!")
         return False
-    checked_token = received_json_data[FIELD_TOKEN]
-    print(f"The checked Token is {checked_token}")
-    return checked_token
+    token = received_json_data[FIELD_TOKEN]
+    print(f"The checked Token is {token}")
+    return token
 
-def get_uploading_plan(clientSocket, token, file, size_file):
+def uploading_file(clientSocket, token, parser):
     """
-    Get file uploading plan and get the key
+    Get file uploading plan and dispense thread
     :param clientSocket:
     :param token:
-    :param file: file path
-    :param size_file: size of file
-    :return: packet containing key, block_size, total_block or False
+    :param parser:
     """
-    # send uploading application
+    global total_thread
+    file = parser.file
+    fhand = open(file, "rb")
+    bin_data = fhand.read()
+    size_file = len(bin_data)
     json_data = {
         FIELD_DIRECTION: DIR_REQUEST,
         FIELD_OPERATION: OP_SAVE,
@@ -69,31 +72,45 @@ def get_uploading_plan(clientSocket, token, file, size_file):
     packet = make_packet(json_data)
     clientSocket.send(packet)
 
-    # receive packet from server side and jude the key exit or not
     received_json_data, received_bin_data = get_tcp_packet(clientSocket)
     print(received_json_data)
-    if FIELD_TOTAL_BLOCK not in received_json_data:
+    if FIELD_BLOCK_SIZE not in received_json_data:
         print(f"Please don't send file with same path: {file}")
-        return False
-    return received_json_data
+        return
+    key = received_json_data[FIELD_KEY]
+    block_size = received_json_data[FIELD_BLOCK_SIZE]
+    total_block = received_json_data[FIELD_TOTAL_BLOCK]
+    blocks = []
+    for block_index in range(total_block):
+        start_index = block_size * block_index
+        end_index = start_index + block_size if block_index != total_block - 1 else size_file
+        blocks.append(bin_data[start_index:end_index])
 
-def uploading_file(clientSocket, token, key_block, bin_data):
+    start_time = time.time()
+    if total_block < total_thread:
+        total_thread = total_block
+    for i in range(total_thread):
+        server_ip, server_port = parser.server_ip, parser.port
+        server_IP_port = (server_ip, int(server_port))
+        sub_socket = socket(AF_INET, SOCK_STREAM)
+        sub_socket.connect(server_IP_port)
+        thread = Thread(target=uploading, args=(sub_socket, token, key, blocks, i))
+        # thread.daemon = True
+        thread.start()
+        # thread.join()
+
+
+def uploading(sub_socket, token, key, blocks, index):
     """
-    Keeping sending block_size_binary_file_data untill get file_MD5
-    :param clientSocket:
+    Send message block by block
+    :param sub_socket:
     :param token:
-    :param key_block: packet containing key, block_size, total_block
-    :param bin_data: the binary data of the uploading files
-    :return: file_MD5
+    :param key:
+    :param blocks:
+    :param index:
     """
-    starttime = time.time()
-    block_index = 0
-    key = key_block[FIELD_KEY]
-    size_file = key_block[FIELD_SIZE]
-    block_size = key_block[FIELD_BLOCK_SIZE]
-    total_block = key_block[FIELD_TOTAL_BLOCK]
-
-    while True:
+    global total_thread
+    for block_index in range(index, len(blocks), total_thread):
         json_data = {
             FIELD_DIRECTION: DIR_REQUEST,
             FIELD_OPERATION: OP_UPLOAD,
@@ -102,52 +119,28 @@ def uploading_file(clientSocket, token, key_block, bin_data):
             FIELD_KEY: key,
             FIELD_BLOCK_INDEX: block_index
         }
+        packet = make_packet(json_data,blocks[block_index])
+        sub_socket.send(packet)
 
-        start_index = block_size * block_index
-        end_index = start_index + block_size if block_index != total_block - 1 else size_file
-        block_bin_data = bin_data[start_index:end_index]
-
-        # send joson_data and the block binary data of file
-        packet = make_packet(json_data, block_bin_data)
-        clientSocket.send(packet)
-
-        # receive packet from server and update block_index, key, check file_MD5 exists in packets
-        received_json_data, received_bin_data = get_tcp_packet(clientSocket)
+        received_json_data, received_bin_data = get_tcp_packet(sub_socket)
         print(received_json_data)
         if FIELD_MD5 in received_json_data:
-            endtime = time.time()
-            consumed_time = round(endtime - starttime, 4)
+            stop_time = time.time()
+            consumed_time = round(stop_time - start_time, 4)
             print(f"Consumed_time for sending this file is {consumed_time} secs")
-            return
-        block_index = received_json_data[FIELD_BLOCK_INDEX] + 1
-        key = received_json_data[FIELD_KEY]
 
 def main():
     parser = _argparse()
-    server_ip = parser.server_ip
-    server_port = parser.port
-    username = parser.id
-    file = parser.file
+    server_ip, server_port = parser.server_ip, parser.port
     server_IP_port = (server_ip, int(server_port))
     clientSocket = socket(AF_INET, SOCK_STREAM)
     clientSocket.connect(server_IP_port)
 
-    # Firstly get token from server
-    token = get_authorization(clientSocket, username) # string
+    token = get_authorization(clientSocket, parser)
     if token is False:
         return
 
-    fhand = open(file,'rb')
-    bin_data = fhand.read()
-    size_file = len(bin_data)
-
-    # File uploading plan and get the key along with the requirements for files
-    key_block = get_uploading_plan(clientSocket, token, file, size_file) # dict
-    if key_block is False:
-        return
-
-    # File uploading block by block and get file_MD5
-    uploading_file(clientSocket, token, key_block, bin_data)
+    uploading_file(clientSocket, token, parser)
 
 if __name__ == "__main__":
     main()
