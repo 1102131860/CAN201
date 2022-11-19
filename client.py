@@ -59,8 +59,13 @@ def uploading_file(clientSocket, token):
     :param token:
     """
     global file, total_thread, start_time
-    fhand = open(file, "rb")
-    bin_data = fhand.read()
+    bin_data = b""
+    for i in range(128):
+        fhand = open(file, "rb")
+        bin_data += fhand.read()
+        fhand.close()
+    # fhand = open(file, "rb")
+    # bin_data = fhand.read()
     size_file = len(bin_data)
     json_data = {
         FIELD_DIRECTION: DIR_REQUEST,
@@ -94,17 +99,14 @@ def uploading_file(clientSocket, token):
     if total_block < total_thread:
         total_thread = total_block
     for i in range(total_thread):
-        server_IP_port = (ip, port)
-        sub_socket = socket(AF_INET, SOCK_STREAM)
-        sub_socket.connect(server_IP_port)
-        thread = Thread(target=uploading, args=(sub_socket, token, key, blocks, i))
+        thread = Thread(target=uploading, args=(clientSocket, token, key, blocks, i))
         thread.start()
         thread.join()
 
-def uploading(sub_socket, token, key, blocks, index):
+def uploading(clientSocket, token, key, blocks, index):
     """
     Send message block by block
-    :param sub_socket:
+    :param clientSocket:
     :param token:
     :param key:
     :param blocks:
@@ -121,9 +123,9 @@ def uploading(sub_socket, token, key, blocks, index):
             FIELD_BLOCK_INDEX: block_index
         }
         packet = make_packet(json_data, blocks[block_index])
-        sub_socket.send(packet)
+        clientSocket.send(packet)
 
-        received_json_data, received_bin_data = get_tcp_packet(sub_socket)
+        received_json_data, received_bin_data = get_tcp_packet(clientSocket)
         print(received_json_data)
         if FIELD_MD5 in received_json_data:
             stop_time = time.time()
