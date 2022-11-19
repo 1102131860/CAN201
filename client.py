@@ -16,7 +16,7 @@ def _argparse():
     parse.add_argument("--f", default='', action='store', required=False, dest="file",
                        help="File path. Default is empty(No file will be upload)")
     parse.add_argument("--thread", default='8', action='store', required=False, dest="total_thread",
-                       help="The total number of thread. Default is 1")
+                       help="The total number of thread. Default is 8")
     return parse.parse_args()
 
 def get_authorization(clientSocket):
