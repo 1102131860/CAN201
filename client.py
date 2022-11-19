@@ -1,12 +1,13 @@
 # This is client.py
 from server import *
 
-total_thread = 1
-start_time, stop_time = f"", f""
+# global variables
+ip, port, id, file, total_thread = "127.0.0.1", 1379, "1202437", "", 1
+start_time, stop_time = 0, 0
 
 def _argparse():
     parse = argparse.ArgumentParser()
-    parse.add_argument("--server_ip", default='127.0.0.1', action='store', required=False, dest="server_ip",
+    parse.add_argument("--server_ip", default='127.0.0.1', action='store', required=False, dest="ip",
                        help="The IP address bind to the server. Default bind to localhost.")
     parse.add_argument("--port", default='1379', action='store', required=False, dest="port",
                        help="The port that server listen on. Default is 1379.")
@@ -14,16 +15,18 @@ def _argparse():
                        help="Your id. Default is 1202437.")
     parse.add_argument("--f", default='', action='store', required=False, dest="file",
                        help="File path. Default is empty(No file will be upload)")
+    parse.add_argument("--thread", default='1', action='store', required=False, dest="total_thread",
+                       help="The total number of thread. Default is 1")
     return parse.parse_args()
 
-def get_authorization(clientSocket, parser):
+def get_authorization(clientSocket):
     """
     Send auth information and receive a TCP "packet" containning token
     :param clientSocket: the TCP clientSocket to send packet
-    :parser:
     :return: Token or False
     """
-    username = parser.id
+    global id
+    username = id
     password = hashlib.md5(username.encode()).hexdigest()
     json_data = {
         FIELD_DIRECTION: DIR_REQUEST,
@@ -49,15 +52,13 @@ def get_authorization(clientSocket, parser):
     print(f"The checked Token is {token}")
     return token
 
-def uploading_file(clientSocket, token, parser):
+def uploading_file(clientSocket, token):
     """
     Get file uploading plan and dispense thread
     :param clientSocket:
     :param token:
-    :param parser:
     """
-    global total_thread, start_time, stop_time
-    file = parser.file
+    global file, total_thread, start_time
     fhand = open(file, "rb")
     bin_data = fhand.read()
     size_file = len(bin_data)
@@ -80,22 +81,23 @@ def uploading_file(clientSocket, token, parser):
     key = received_json_data[FIELD_KEY]
     block_size = received_json_data[FIELD_BLOCK_SIZE]
     total_block = received_json_data[FIELD_TOTAL_BLOCK]
+
+    # decompose bin_data
     blocks = []
     for block_index in range(total_block):
         start_index = block_size * block_index
         end_index = start_index + block_size if block_index != total_block - 1 else size_file
         blocks.append(bin_data[start_index:end_index])
 
+    # dispense thread
     start_time = time.time()
     if total_block < total_thread:
         total_thread = total_block
     for i in range(total_thread):
-        server_ip, server_port = parser.server_ip, parser.port
-        server_IP_port = (server_ip, int(server_port))
+        server_IP_port = (ip, port)
         sub_socket = socket(AF_INET, SOCK_STREAM)
         sub_socket.connect(server_IP_port)
         thread = Thread(target=uploading, args=(sub_socket, token, key, blocks, i))
-        # thread.daemon = True
         thread.start()
         thread.join()
 
@@ -129,17 +131,18 @@ def uploading(sub_socket, token, key, blocks, index):
             print(f"Consumed_time for sending this file is {consumed_time} secs")
 
 def main():
+    global server_ip, port, id, file, total_thread
     parser = _argparse()
-    server_ip, server_port = parser.server_ip, parser.port
-    server_IP_port = (server_ip, int(server_port))
+    ip, port, id, file, total_thread = parser.ip, int(parser.port), parser.id, parser.file, int(parser.total_thread)
+    server_IP_port = (ip, port)
     clientSocket = socket(AF_INET, SOCK_STREAM)
     clientSocket.connect(server_IP_port)
 
-    token = get_authorization(clientSocket, parser)
+    token = get_authorization(clientSocket)
     if token is False:
         return
 
-    uploading_file(clientSocket, token, parser)
+    uploading_file(clientSocket, token)
 
 if __name__ == "__main__":
     main()
